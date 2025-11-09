@@ -1,162 +1,130 @@
-﻿# DESAFIO-DARP
+# API Marketplace Agro
 
-# Marketplace Agro — API RESTful
+A RESTful API built with FastAPI for managing an agricultural marketplace where producers can list their products and users can browse available agricultural products.
 
-Pequenos produtores rurais enfrentam dificuldades para vender seus produtos diretamente aos consumidores.  
-A ideia é criar uma **API RESTful** que permita a conexão entre **produtores**, **compradores** e **administradores**, formando um **marketplace agro**.
+[![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
+[![Python](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
-O sistema deve permitir o **cadastro de produtos agrícolas**, **pedidos de compra** e o **controle de estoque** — tudo de forma **automatizada e segura**.
+## Features
 
----
+- 🔐 **Secure Authentication**: JWT-based authentication system
+- 👤 **User Management**: Support for different user types (producers and regular users)
+- 📦 **Product Management**: CRUD operations for agricultural products
+- 🔍 **Product Discovery**: Public endpoints for browsing available products
+- 🐳 **Docker Support**: Easy deployment with Docker and Docker Compose
+- 📊 **MariaDB Database**: Reliable data storage with MariaDB
+- 📚 **API Documentation**: Auto-generated interactive API documentation with Swagger UI
 
-## Objetivo
-Desenvolver uma **API back-end** capaz de gerenciar:
+## Getting Started
 
-- Cadastro e autenticação de usuários (**produtor**, **comprador**, **administrador**).  
-- Catálogo de produtos.
+### Prerequisites
 
----
+- Docker and Docker Compose
+- Python 3.6 or higher (for local development)
 
-## Tipos de Usuário e Funções
+### Installation
 
-| Tipo de Usuário | Funções Essenciais |
-|------------------|--------------------|
-| **Produtor**     | Criar e gerenciar seus próprios produtos. |
-| **Comprador**    | Apenas visualizar a lista de produtos (Catálogo). |
-| **Administrador**| Gerenciar (listar, deletar) todos os usuários. |
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/MarcosKNB/API-Restful.git
+   cd API-Restful
+   ```
 
----
+2. Create a `.env` file in the root directory with the following variables:
+   ```env
+   DB_USER=your_db_user
+   DB_PASSWORD=your_db_password
+   DB_HOST=db
+   DB_PORT=3306
+   DB_NAME=your_db_name
+   MARIADB_ROOT_PASSWORD=your_root_password
+   ```
 
-## Principais Funcionalidades
+3. Build and start the containers:
+   ```bash
+   docker compose up -d
+   ```
 
-### Autenticação
-- Endpoints:
-  - `POST /auth/register` — Cadastro de usuário.  
-  - `POST /auth/login` — Login e geração de token JWT.
-- Utilize **JWT (JSON Web Tokens)** para proteger rotas e identificar o usuário autenticado.
+The API will be available at `http://localhost:8000`
 
----
+### Local Development Setup
 
-## Produto (CRUD Básico)
+1. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # Linux/macOS
+   ```
 
-### Rotas
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-| Método | Rota | Descrição | Acesso |
-|--------|------|------------|--------|
-| **POST** | `/produtos` | Criar produto | Apenas **Produtor** |
-| **GET** | `/produtos` | Listar todos os produtos | **Todos (autenticado ou não)** |
-| **GET** | `/produtos/{id}` | Detalhar produto específico | **Todos** |
-| **PUT** | `/produtos/{id}` | Atualizar produto | Apenas **Produtor dono** |
-| **DELETE** | `/produtos/{id}` | Remover produto | Apenas **Produtor dono** |
+3. Run the development server:
+   ```bash
+   uvicorn app.main:app --reload
+   ```
 
----
+## Admin de teste
+- Arquivo teste.py, so rodar
 
-## Requisitos e Validações
+## API Documentation
 
-### Usuário
+Once the server is running, you can access:
 
-| Campo | Tipo | Requisitos / Validações |
-|--------|------|--------------------------|
-| **nome** | String | Obrigatório. Mínimo 3 caracteres. |
-| **email** | String | Obrigatório. Deve ter formato válido e ser único. |
-| **senha** | String | Obrigatório. Mínimo 8 caracteres, contendo letras e números. |
-| **tipo** | String | Obrigatório. Deve ser um dos seguintes: `produtor`, `comprador`, `admin`. |
-| **localizacao** | String | Opcional. Deve ter no máximo 100 caracteres. |
+- Interactive API documentation (Swagger UI): `http://localhost:8000/docs`
+- Alternative API documentation (ReDoc): `http://localhost:8000/redoc`
 
-**Regras adicionais:**
-- O e-mail não pode se repetir entre usuários.  
-- A senha deve ser armazenada **com hashing seguro (ex: bcrypt)**.  
-- Apenas **administradores** podem excluir outros usuários.  
+## Main Endpoints
 
----
+### Authentication
+- `POST /token` - Get access token
+- `POST /usuarios/` - Register new user
 
-### Produto
+### Products
+- `GET /produtos/` - List all products (public)
+- `POST /produtos/` - Create new product (producers only)
+- `GET /produtos/me` - List producer's products
+- `GET /produtos/{id}` - Get product details
+- `PUT /produtos/{id}` - Update product (owner only)
+- `DELETE /produtos/{id}` - Delete product (owner only)
 
-| Campo | Tipo | Requisitos / Validações |
-|--------|------|--------------------------|
-| **nome** | String | Obrigatório. Entre 3 e 100 caracteres. |
-| **descricao** | String | Opcional. Máximo 500 caracteres. |
-| **preco** | Float | Obrigatório. Deve ser maior que 0. |
-| **quantidade** | Integer | Obrigatório. Deve ser maior ou igual a 0. |
-| **categoria** | String | Obrigatório. Deve ser uma das categorias válidas (ex: `frutas`, `grãos`, `laticínios`, etc.). |
-| **localizacao** | String | Opcional. Cidade ou região do produto. |
-| **produtor_id** | Integer | Obrigatório. Referência ao usuário do tipo **produtor**. |
+### Users
+- `GET /usuarios/me` - Get current user info
+- `PUT /usuarios/me` - Update current user info
 
-**Regras adicionais:**
-- Apenas o **produtor dono do produto** pode alterá-lo ou removê-lo.  
-- O campo **preço** deve aceitar até duas casas decimais.  
-- Não é permitido cadastrar produtos com **quantidade negativa**.  
-- Produtos devem ser automaticamente vinculados ao produtor autenticado no momento do cadastro.  
+## Project Structure
 
----
+```
+.
+├── app/
+│   ├── rotas/           # API routes
+│   ├── crud.py         # Database operations
+│   ├── database.py     # Database configuration
+│   ├── deps.py         # Dependencies and utilities
+│   ├── main.py         # Application entry point
+│   ├── models.py       # SQLAlchemy models
+│   ├── schemas.py      # Pydantic schemas
+│   └── security.py     # Authentication logic
+├── compose.yaml        # Docker Compose configuration
+├── Dockerfile         # Docker configuration
+├── requirements.txt   # Python dependencies
+└── README.md         # Project documentation
+```
 
-## Modelagem de Dados (Sugerida)
+## Problemas
 
-### Usuário
+Ao rodar no docker verifique se o seu proprio banco de dados esta rodando, se sim, desligue.
 
-| Coluna | Tipo de Dado | Restrições | Descrição |
-|--------|---------------|-------------|------------|
-| `id` | Integer | **Primary Key** | Identificador único do usuário |
-| `nome` | String | **NOT NULL** | Nome completo |
-| `email` | String (Unique) | **NOT NULL** | Email usado para login |
-| `senha_hash` | String | **NOT NULL** | Senha armazenada com hashing |
-| `tipo` | String | **NOT NULL** | Perfil: `'produtor'`, `'comprador'` ou `'admin'` |
-| `localizacao` | String | *Nullable* | Cidade/Região do usuário |
+## Contributing
 
----
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-### Produto
+## Support
 
-| Coluna | Tipo de Dado | Restrições | Descrição |
-|--------|---------------|-------------|------------|
-| `id` | Integer | **Primary Key** | Identificador único do produto |
-| `nome` | String | **NOT NULL** | Nome do produto (ex: "Tomate Orgânico") |
-| `descricao` | String | *Nullable* | Descrição detalhada |
-| `preco` | Float/Numeric | **NOT NULL** | Preço unitário |
-| `quantidade` | Integer | **NOT NULL** | Quantidade em estoque |
-| `categoria` | String | **NOT NULL** | Categoria (ex: "frutas", "laticínios") |
-| `localizacao` | String | *Nullable* | Localização do produto |
-| `produtor_id` | Integer | **Foreign Key (usuario.id)** | Dono do produto |
+If you have any questions or run into issues, please [open an issue](https://github.com/MarcosKNB/API-Restful/issues) in the GitHub repository.
 
----
+## License
 
-## Tecnologias Sugeridas
-
-- **Linguagem:** Python  
-  - Framework: **Django** ou **FastAPI**
-- **Banco de Dados:** MySQL ou PostgreSQL  
-- **Documentação:** Swagger / OpenAPI
-
----
-
-## Critérios de Avaliação
-
-| Critério | Descrição | Peso |
-|-----------|------------|------|
-| **Modelagem de Dados** | Estrutura correta das entidades e relacionamentos. | 15% |
-| **Autenticação e Autorização** | Implementação funcional de login, JWT e controle de acesso. | 15% |
-| **Endpoints RESTful** | Implementação correta dos endpoints CRUD e boas práticas HTTP. | 15% |
-| **Lógica de Negócio e Validações** | Implementar a lógica de negócio descrita no documento, incluindo validações adequadas. | 15% |
-| **Organização do Código** | Estrutura limpa, modular e bem documentada. | 15% |
-| **Segurança** | Uso de boas práticas (hash de senha, proteção de rotas, etc.). | 15% |
-| **Documentação (Swagger/OpenAPI)** | Clareza e completude da documentação da API. | 10% |
-| **Docker (Extra)** | Implementação de um Dockerfile e Docker Compose funcional. | 5% |
-
----
-
-## Observações
-
-- O aluno deve **dar fork** no repositório oficial disponibilizado pela disciplina antes de iniciar o desenvolvimento.  
-- No arquivo **README.md**, incluir as seguintes informações:
-  - **Versão do Python** utilizada.  
-  - **SGBD (Banco de Dados)** utilizado (ex: MySQL, PostgreSQL).  
-  - **Principais bibliotecas** com suas versões (ex: FastAPI, SQLAlchemy, JWT, etc.).  
-- O README também deve conter instruções de **instalação, execução e testes** da aplicação.
-
----
-
-## Links Úteis
-
-- [Docker e Docker Compose — Um guia para iniciantes](https://dev.to/ingresse/docker-e-docker-compose-um-guia-para-iniciantes-48k8)  
-- [Documentação oficial do FastAPI](https://fastapi.tiangolo.com)
----
+This project is open-source and available under the MIT License.
